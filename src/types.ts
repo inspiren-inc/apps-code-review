@@ -1,6 +1,12 @@
 export interface Score {
   id: string;
-  name: string;
+  userId: string;
   score: number;
   updated: Date;
+}
+
+export interface User {
+  id: string;
+  username: string;
+  title: string;
 }
