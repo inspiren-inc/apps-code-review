@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Score from './Score';
 import { Score as ScoreType } from './types';
 import './App.css';
@@ -8,7 +8,7 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Make the fetchScores function not async which should throw errors with the await keyword/syntax being used, 
+  // Introduce a bug - Make the fetchScores function not async which should throw errors with the await keyword/syntax being used, 
   // It can be wrapped in a useCallback
   const fetchScores = () => {
     try {
@@ -21,7 +21,8 @@ const App = () => {
       
       const data = await response.json();
       
-      const scoresWithDates = data.map((score: any) => ({
+      // Score should be typed and not use Any
+      const scoresWithDates = data.map((score: ScoreType) => ({
         ...score,
         updated: new Date(score.updated)
       }));
@@ -40,7 +41,9 @@ const App = () => {
   }, []);
 
   // this should be memoized
-  const sortedScores = [...scores].sort((a, b) => b.score - a.score);
+  const sortedScores = useMemo(() => {
+    return [...scores].sort((a, b) => b.score - a.score);
+  }, [scores]);
 
   if (loading) {
     return (
