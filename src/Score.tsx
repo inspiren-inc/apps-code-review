@@ -6,8 +6,7 @@ interface ScoreProps {
   score: ScoreType;
 }
 
-// Nit> React.FC is kind of unnecessary and should be removed as it makes the code more readable
-const Score = ({ score } : ScoreProps) => {
+const Score: React.FC<ScoreProps> = ({ score }) => {
   return (
     <div className="score-item">
       <div className="score-name">{score.name}</div>
