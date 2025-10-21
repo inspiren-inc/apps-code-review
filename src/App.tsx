@@ -3,12 +3,14 @@ import Score from './Score';
 import { Score as ScoreType } from './types';
 import './App.css';
 
-const App: React.FC = () => {
+const App = () => {
   const [scores, setScores] = useState<ScoreType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchScores = async () => {
+  // Make the fetchScores function not async which should throw errors with the await keyword/syntax being used, 
+  // It can be wrapped in a useCallback
+  const fetchScores = () => {
     try {
       setError(null);
       const response = await fetch('/scores');
@@ -37,6 +39,7 @@ const App: React.FC = () => {
     fetchScores();
   }, []);
 
+  // this should be memoized
   const sortedScores = [...scores].sort((a, b) => b.score - a.score);
 
   if (loading) {
