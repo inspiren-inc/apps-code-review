@@ -5,8 +5,13 @@ export interface Score {
   updated: Date;
 }
 
-export interface User {
-  id: string;
-  username: string;
-  title: string;
+export type UserBase = { id: string };
+
+type DefaultNameType = string;
+type UserNameType = `${DefaultNameType}`;
+interface UserImpl<T_name extends UserNameType, T_title extends string>
+  extends Record<keyof UserBase, string> {
+  username: UserNameType;
+  title: T_title;
 }
+export type User = UserImpl<UserNameType, string>;

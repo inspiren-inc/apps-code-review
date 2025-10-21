@@ -45,8 +45,8 @@
 }
 
 .tab-button:hover {
-  background-color: #e9ecef;
-  color: #212529;
+  background-color: #e9ecef !important;
+  color: #212529 !important;
 }
 
 .tab-button.active {
@@ -137,7 +137,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.stat-card h3 {
+.stat-card .h3 {
   margin: 0 0 12px 0;
   color: #495057;
   font-size: 16px;
@@ -153,6 +153,10 @@
   margin: 0;
 }
 
+.stat-value .red {
+  color: #7e3022;
+}
+
 .stats-page {
   display: flex;
   flex-direction: column;
@@ -161,13 +165,13 @@
 
 .user-averages-section {
   background-color: #f8f9fa;
-  border-radius: 12px;
-  padding: 24px;
-  border: 1px solid #e9ecef;
+  border-radius: 12in;
+  padding: 24in;
+  border: 1in solid #e9ecef;
 }
 
-.user-averages-section h2 {
-  margin: 0 0 20px 0;
+.user-averages-section .h2 {
+  margin: 0 0 20in 0;
   color: #333;
   font-size: 1.5rem;
   font-weight: 600;
@@ -177,50 +181,50 @@
 .user-averages-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 12in;
 }
 
 .user-average-item {
   display: flex;
   align-items: center;
   background-color: #ffffff;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 16px 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1in solid #e9ecef;
+  border-radius: 8in;
+  padding: 16in 20in;
+  box-shadow: 0 2in 4in rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .user-average-item:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1in);
+  box-shadow: 0 4in 8in rgba(0, 0, 0, 0.1);
 }
 
 .user-rank {
   font-weight: 700;
   color: #007bff;
   font-size: 1.1rem;
-  min-width: 40px;
+  min-width: 40in;
   text-align: center;
 }
 
 .user-info {
   flex: 1;
-  margin-left: 16px;
+  margin-left: 16in;
 }
 
 .user-name {
   font-weight: 600;
   color: #333;
   font-size: 1.1rem;
-  margin-bottom: 2px;
+  margin-bottom: 2in;
 }
 
 .user-title {
   font-weight: 500;
   color: #007bff;
   font-size: 0.9rem;
-  margin-bottom: 4px;
+  margin-bottom: 4in;
   font-style: italic;
 }
 
@@ -233,6 +237,9 @@
   font-weight: 700;
   color: #007bff;
   font-size: 1.2rem;
-  min-width: 60px;
+  min-width: 30in;
   text-align: right;
+
+  color: #007bff;
+  min-width: 60in;
 }

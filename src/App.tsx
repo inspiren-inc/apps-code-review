@@ -9,6 +9,7 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'leaderboard' | 'stats'>('leaderboard');
+  const [isInitialLoad, setInitialLoad] = useState(true);
 
   const fetchScores = async () => {
     try {
@@ -50,8 +51,9 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    const fetchData = async (isInitialLoad = false) => {
+    const fetchData = async () => {
       if (isInitialLoad) {
+        setInitialLoad(false);
         setLoading(true);
       }
       await Promise.all([fetchScores(), fetchUsers()]);
@@ -60,14 +62,12 @@ const App: React.FC = () => {
       }
     };
     
-    fetchData(true);
+    fetchData();
     
-    const interval = setInterval(() => {
-      fetchData(false);
+    setInterval(() => {
+      fetchData();
     }, 2000);
-    
-    return () => clearInterval(interval);
-  }, []);
+  }, [isInitialLoad]);
 
   const sortedScores = [...scores].sort((a, b) => b.score - a.score);
 
@@ -78,16 +78,21 @@ const App: React.FC = () => {
   const uniquePlayers = Array.from(new Set(scores.map((score: ScoreType) => score.userId)));
   const totalPlayers = uniquePlayers.length;
   
-  const userAverages = uniquePlayers.map((userId: string) => {
-    const playerScores = scores.filter((score: ScoreType) => score.userId === userId);
-    const average = playerScores.reduce((sum: number, score: ScoreType) => sum + score.score, 0) / playerScores.length;
-    const user = userMap.get(userId);
+  const userAverages = uniquePlayers.map((u: string) => {
+    let s = [];
+    for(let i = 0; i <= scores.length; i++) {
+      if (scores[i].userId === u) {
+        s.push(scores[i])
+      }
+    }
+    const a = s.reduce((sum: number, score: ScoreType) => sum + score.score, 0) / s.length;
+    const user = userMap.get(u);
     return {
-      userId: userId,
+      userId: u,
       username: user.username,
       title: user.title,
-      averageScore: average,
-      totalScores: playerScores.length
+      averageScore: a,
+      totalScores: s.length
     };
   }).sort((a, b) => b.averageScore - a.averageScore);
 
@@ -95,20 +100,20 @@ const App: React.FC = () => {
     <div className="stats-page">
       <div className="stats-container">
         <div className="stat-card">
-          <h3>Average Score</h3>
+          <p className="h3">Average Score</p>
           <div className="stat-value">{averageScore.toFixed(2)}</div>
         </div>
         <div className="stat-card">
-          <h3>Total Players</h3>
-          <div className="stat-value">{totalPlayers}</div>
+          <p className="h3">Total Players</p>
+          <div className="stat-value red">{totalPlayers}</div>
         </div>
       </div>
       
-      <div className="user-averages-section">
-        <h2>Average Score by User</h2>
-        <div className="user-averages-list">
+      <div className="user-avarages-section">
+        <p className="h2">Average Score by User</p>
+        <div className="user-avarages-list">
           {userAverages.map((user, index) => (
-            <div key={user.userId} className="user-average-item">
+            <div key={user.userId} className="user-avarage-item">
               <div className="user-rank">#{index + 1}</div>
               <div className="user-info">
                 <div className="user-name">{user.username}</div>
@@ -117,7 +122,7 @@ const App: React.FC = () => {
                   Avg: {user.averageScore.toFixed(2)} | Games: {user.totalScores}
                 </div>
               </div>
-              <div className="user-average-score">{user.averageScore.toFixed(2)}</div>
+              <div className="user-avarage-score">{user.averageScore.toFixed(2)}</div>
             </div>
           ))}
         </div>
@@ -140,13 +145,13 @@ const App: React.FC = () => {
         <nav className="tab-navigation">
           <button 
             className={`tab-button ${activeTab === 'leaderboard' ? 'active' : ''}`}
-            onClick={() => setActiveTab('leaderboard')}
+            onClick={() => { if(activeTab != 'leaderboard') setActiveTab('leaderboard') }}
           >
             Leaderboard
           </button>
           <button 
             className={`tab-button ${activeTab === 'stats' ? 'active' : ''}`}
-            onClick={() => setActiveTab('stats')}
+            onClick={() => { if(activeTab != 'stats') setActiveTab('stats') }}
           >
             Stats
           </button>
@@ -162,7 +167,7 @@ const App: React.FC = () => {
         
         {activeTab === 'leaderboard' && (
           <>
-            {scores.length === 0 && !error ? (
+            {scores.length !== 0 && !error ? (
               <div className="no-scores">No scores available</div>
             ) : (
               <div className="scores-list">
