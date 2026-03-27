@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { StyleSheet, View, Text, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Score from './Score';
@@ -13,8 +13,10 @@ const App: React.FC = () => {
     'leaderboard'
   );
   const [isInitialLoad, setInitialLoad] = useState(true);
+  const isMounted = useRef(true);
 
   const fetchScores = async () => {
+    if (!isMounted.current) return;
     try {
       setError(null);
       const response = await fetch('/scores');
@@ -23,9 +25,9 @@ const App: React.FC = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data: ScoreType[] = await response.json();
 
-      const scoresWithDates = data.map((score: any) => ({
+      const scoresWithDates = data.map(score => ({
         ...score,
         updated: new Date(score.updated)
       }));
@@ -38,6 +40,7 @@ const App: React.FC = () => {
   };
 
   const fetchUsers = async () => {
+    if (!isMounted.current) return;
     try {
       const response = await fetch('/users');
 
@@ -70,9 +73,13 @@ const App: React.FC = () => {
     setInterval(() => {
       fetchData();
     }, 2000);
+
+    return () => {
+      isMounted.current = false;
+    };
   }, [isInitialLoad]);
 
-  const sortedScores = [...scores].sort((a, b) => b.score - a.score);
+  const sortedScores = useMemo(() => [...scores].sort((a, b) => b.score - a.score), []);
 
   const averageScore =
     scores.length > 0
