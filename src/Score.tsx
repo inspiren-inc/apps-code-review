@@ -4,12 +4,13 @@ import { Score as ScoreType } from './types';
 
 interface ScoreProps {
   score: ScoreType;
+  username: string;
 }
 
-const Score: React.FC<ScoreProps> = ({ score }) => {
+const Score: React.FC<ScoreProps> = ({ score, username }) => {
   return (
     <View style={styles.scoreItem}>
-      <Text style={styles.scoreName}>{score.userId}</Text>
+      <Text style={styles.scoreName}>{username}</Text>
       <Text style={styles.scoreValue}>{score.score}</Text>
     </View>
   );

@@ -204,7 +204,7 @@ const App: React.FC = () => {
               ) : (
                 <View style={styles.scoresList}>
                   {sortedScores.map((score, index) => (
-                    <Score key={index} score={score} />
+                    <Score key={index} score={score} username={userMap.get(score.userId)?.username ?? score.userId} />
                   ))}
                 </View>
               )}
@@ -366,6 +366,8 @@ const styles = StyleSheet.create({
     margin: 0
   },
   statValueRed: {
+    fontSize: 36,
+    fontWeight: 700,
     color: '#7e3022'
   },
   statsPage: {
@@ -383,7 +385,7 @@ const styles = StyleSheet.create({
   userAveragesSectionTitle: {
     marginVertical: 20,
     color: '#333',
-    fontSize: 1.5,
+    fontSize: 24,
     fontWeight: 600,
     textAlign: 'center'
   },
@@ -401,7 +403,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 16,
     paddingHorizontal: 20,
-    boxShadow: '0 2in 4in rgba(0, 0, 0, 0.05)'
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
   },
   userRank: {
     fontWeight: 700,
