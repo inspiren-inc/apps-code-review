@@ -15,3 +15,7 @@ interface UserImpl<T_name extends UserNameType, T_title extends string>
   title: T_title;
 }
 export type User = UserImpl<UserNameType, string>;
+
+export function getUser(map: Map<string, User>, id: string): User {
+  return map.get(id) as User;
+}

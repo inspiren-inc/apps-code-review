@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { StyleSheet, View, Text, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Score from './Score';
-import { Score as ScoreType, User } from './types';
+import { Score as ScoreType, User, getUser } from './types';
 
 const App: React.FC = () => {
   const [scores, setScores] = useState<ScoreType[]>([]);
@@ -15,7 +15,7 @@ const App: React.FC = () => {
   const [isInitialLoad, setInitialLoad] = useState(true);
   const isMounted = useRef(true);
 
-  const fetchScores = async () => {
+  const fetchScores = useCallback(async () => {
     if (!isMounted.current) return;
     try {
       setError(null);
@@ -37,9 +37,9 @@ const App: React.FC = () => {
       console.error('Error fetching scores:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch scores');
     }
-  };
+  }, []);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     if (!isMounted.current) return;
     try {
       const response = await fetch('/users');
@@ -54,7 +54,7 @@ const App: React.FC = () => {
       console.error('Error fetching users:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch users');
     }
-  };
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -77,7 +77,7 @@ const App: React.FC = () => {
     return () => {
       isMounted.current = false;
     };
-  }, [isInitialLoad]);
+  }, [fetchScores, fetchUsers, isInitialLoad]);
 
   const sortedScores = useMemo(() => [...scores].sort((a, b) => b.score - a.score), []);
 
@@ -105,7 +105,7 @@ const App: React.FC = () => {
       const a =
         s.reduce((sum: number, score: ScoreType) => sum + score.score, 0) /
         s.length;
-      const user = userMap.get(u);
+      const user = getUser(userMap, u);
       return {
         userId: u,
         username: user.username,
