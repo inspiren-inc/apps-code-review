@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { StyleSheet, View, Text, Pressable } from 'react-native';
+import { StyleSheet, View, Text, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Score from './Score';
 import { Score as ScoreType, User } from './types';
@@ -116,6 +116,10 @@ const App: React.FC = () => {
     })
     .sort((a, b) => b.averageScore - a.averageScore);
 
+  const topPerformer = userAverages.length > 0
+    ? users.find((u: User) => u.id === userAverages[0].userId) || null
+    : null;
+
   const StatsComponent = () => (
     <View style={styles.statsPage}>
       <View style={styles.statsContainer}>
@@ -128,6 +132,10 @@ const App: React.FC = () => {
           <Text style={styles.statValueRed}>{totalPlayers}</Text>
         </View>
       </View>
+
+      {topPerformer && (
+        <Text style={styles.statTitle}>Top Performer: {topPerformer.username}</Text>
+      )}
 
       <View style={styles.userAveragesSection}>
         <Text style={styles.userAveragesSectionTitle}>
@@ -202,11 +210,17 @@ const App: React.FC = () => {
               {scores.length !== 0 && !error ? (
                 <Text style={styles.noScores}>No scores available</Text>
               ) : (
-                <View style={styles.scoresList}>
-                  {sortedScores.map((score, index) => (
-                    <Score key={index} score={score} />
-                  ))}
-                </View>
+                <ScrollView>
+                  <View style={styles.scoresList}>
+                    {sortedScores.map((score, index) => (
+                      <Score
+                        key={index}
+                        score={score}
+                        onPress={() => console.log('selected', score.id)}
+                      />
+                    ))}
+                  </View>
+                </ScrollView>
               )}
             </>
           )}
