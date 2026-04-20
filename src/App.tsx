@@ -94,6 +94,7 @@ const App: React.FC = () => {
   );
   const totalPlayers = uniquePlayers.length;
 
+  //todo : 
   const userAverages = uniquePlayers
     .map((u: string) => {
       let s = [];
