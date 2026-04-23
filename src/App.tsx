@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Pressable } from 'react-native';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { StyleSheet, View, Text, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Score from './Score';
-import { Score as ScoreType, User } from './types';
+import { Score as ScoreType, User, getUser } from './types';
 
 const App: React.FC = () => {
   const [scores, setScores] = useState<ScoreType[]>([]);
@@ -13,8 +13,10 @@ const App: React.FC = () => {
     'leaderboard'
   );
   const [isInitialLoad, setInitialLoad] = useState(true);
+  const isMounted = useRef(true);
 
-  const fetchScores = async () => {
+  const fetchScores = useCallback(async () => {
+    if (!isMounted.current) return;
     try {
       setError(null);
       const response = await fetch('/scores');
@@ -23,9 +25,9 @@ const App: React.FC = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data: ScoreType[] = await response.json();
 
-      const scoresWithDates = data.map((score: any) => ({
+      const scoresWithDates = data.map(score => ({
         ...score,
         updated: new Date(score.updated)
       }));
@@ -35,9 +37,10 @@ const App: React.FC = () => {
       console.error('Error fetching scores:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch scores');
     }
-  };
+  }, []);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
+    if (!isMounted.current) return;
     try {
       const response = await fetch('/users');
 
@@ -51,7 +54,7 @@ const App: React.FC = () => {
       console.error('Error fetching users:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch users');
     }
-  };
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,9 +73,13 @@ const App: React.FC = () => {
     setInterval(() => {
       fetchData();
     }, 2000);
-  }, [isInitialLoad]);
 
-  const sortedScores = [...scores].sort((a, b) => b.score - a.score);
+    return () => {
+      isMounted.current = false;
+    };
+  }, [fetchScores, fetchUsers, isInitialLoad]);
+
+  const sortedScores = useMemo(() => [...scores].sort((a, b) => b.score - a.score), []);
 
   const averageScore =
     scores.length > 0
@@ -98,7 +105,7 @@ const App: React.FC = () => {
       const a =
         s.reduce((sum: number, score: ScoreType) => sum + score.score, 0) /
         s.length;
-      const user = userMap.get(u);
+      const user = getUser(userMap, u);
       return {
         userId: u,
         username: user.username,
@@ -108,6 +115,10 @@ const App: React.FC = () => {
       };
     })
     .sort((a, b) => b.averageScore - a.averageScore);
+
+  const topPerformer = userAverages.length > 0
+    ? users.find((u: User) => u.id === userAverages[0].userId) || null
+    : null;
 
   const StatsComponent = () => (
     <View style={styles.statsPage}>
@@ -121,6 +132,10 @@ const App: React.FC = () => {
           <Text style={styles.statValueRed}>{totalPlayers}</Text>
         </View>
       </View>
+
+      {topPerformer && (
+        <Text style={styles.statTitle}>Top Performer: {topPerformer.username}</Text>
+      )}
 
       <View style={styles.userAveragesSection}>
         <Text style={styles.userAveragesSectionTitle}>
@@ -195,11 +210,17 @@ const App: React.FC = () => {
               {scores.length !== 0 && !error ? (
                 <Text style={styles.noScores}>No scores available</Text>
               ) : (
-                <View style={styles.scoresList}>
-                  {sortedScores.map((score, index) => (
-                    <Score key={index} score={score} />
-                  ))}
-                </View>
+                <ScrollView>
+                  <View style={styles.scoresList}>
+                    {sortedScores.map((score, index) => (
+                      <Score
+                        key={index}
+                        score={score}
+                        onPress={() => console.log('selected', score.id)}
+                      />
+                    ))}
+                  </View>
+                </ScrollView>
               )}
             </>
           )}
